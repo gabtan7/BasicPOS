@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BasicPOS.DataAccess\BasicPOS.DataAccess.csproj" />
+    <ProjectReference Include="..\BasicPOS.Utility\BasicPOS.Utility.csproj" />
   </ItemGroup>
 
   <ItemGroup>

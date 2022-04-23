@@ -1,13 +1,15 @@
 ﻿using BasicPOS.DataAccess.Repository;
 using BasicPOS.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BasicPOS.Web.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class ItemController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-
+        
         public ItemController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -25,6 +27,9 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
+                obj.CreatedDate = DateTime.Now;
+                obj.CreatedBy = "admin";
+
                 await _unitOfWork.Item.Add(obj);
                 await _unitOfWork.Save();
                 TempData["success"] = "Item created successfully!";
