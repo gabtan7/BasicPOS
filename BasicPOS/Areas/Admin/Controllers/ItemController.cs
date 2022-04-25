@@ -1,5 +1,6 @@
 ﻿using BasicPOS.DataAccess.Repository;
 using BasicPOS.Models;
+using BasicPOS.Utility;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -20,55 +21,60 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
             IEnumerable<Item> itemList = await _unitOfWork.Item.GetAll();
             return View(itemList);
         }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Item obj)
-        {
-            if (ModelState.IsValid)
-            {
-                obj.CreatedDate = DateTime.Now;
-                obj.CreatedBy = "admin";
-
-                await _unitOfWork.Item.Add(obj);
-                await _unitOfWork.Save();
-                TempData["success"] = "Item created successfully!";
-                return RedirectToAction("Index");
-            }
-
-            return View(obj);
-        }
-        public async Task<IActionResult> Edit(int? Id)
+        public async Task<IActionResult> CreateUpdate(int? Id)
         {
             if (Id == null || Id == 0)
             {
-                return NotFound();
+                return View(new Item());
             }
 
             var ItemFromDb = await _unitOfWork.Item.GetFirstOrDefault(u => u.Id == Id);
 
-            if (ItemFromDb == null)
+            if(ItemFromDb.IsActive)
+                return View(ItemFromDb);
+            else
             {
-                return NotFound();
+                TempData["error"] = "Invalid action, item is inactive.";
+                return RedirectToAction("Index");
             }
-
-            return View(ItemFromDb);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Item obj)
+        public async Task<IActionResult> CreateUpdate(Item obj)
         {
-            if (ModelState.IsValid)
+            if (obj.Id == 0)
             {
-                _unitOfWork.Item.Update(obj);
-                await _unitOfWork.Save();
-                TempData["success"] = "Item updated successfully!";
-                return RedirectToAction("Index");
-            }
+                obj.CreatedBy = SD.LoggedInUserName;
+                obj.CreatedDate = DateTime.Now;
 
-            return View(obj);
+                if (ModelState.IsValid)
+                {
+                    await _unitOfWork.Item.Add(obj);
+                    TempData["success"] = "Company created successfully!";
+                }
+
+                else
+                    return View(obj);
+            }
+            else
+            {
+                obj.UpdatedBy = SD.LoggedInUserName;
+                obj.UpdatedDate = DateTime.Now;
+
+                if (ModelState.IsValid)
+                {
+                    _unitOfWork.Item.Update(obj);
+                    TempData["success"] = "Item updated successfully!";
+                }
+
+                else
+                    return View(obj);
+            }
+            await _unitOfWork.Save();
+            return RedirectToAction("Index");
         }
+
         public async Task<IActionResult> Delete(int? Id)
         {
             if (Id == null || Id == 0)
@@ -83,7 +89,13 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            return View(ItemFromDb);
+            if (ItemFromDb.IsActive)
+                return View(ItemFromDb);
+            else
+            {
+                TempData["error"] = "Invalid action, item is inactive.";
+                return RedirectToAction("Index");
+            }
         }
 
         [HttpPost]

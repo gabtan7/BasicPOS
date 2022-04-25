@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using BasicPOS.Utility;
+using BasicPOS.Models;
 
 namespace BasicPOS.Web.Areas.Identity.Pages.Account
 {
@@ -115,6 +116,9 @@ namespace BasicPOS.Web.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
+                    IdentityUser currentUser = _signInManager.UserManager.Users.AsEnumerable().Where(u => u.Email == Input.Email).FirstOrDefault();
+                    SD.LoggedInUserName = ((ApplicationUser)currentUser).Name;
+
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }

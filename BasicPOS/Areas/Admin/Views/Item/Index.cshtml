@@ -16,7 +16,7 @@
                 <h2 class="text-primary">Item List</h2>
             </div>   
             <div class="col-6 text-end">
-                <a asp-controller="Item" asp-action="Create" class="btn btn-primary">
+                <a asp-controller="Item" asp-action="CreateUpdate" class="btn btn-primary">
                     <i class="bi bi-plus-circle"></i>
                     Create New Item
                 </a> 
@@ -29,8 +29,16 @@
     <table class="table table-bordered table-striped" stype="width:100%">
         <thead>
             <tr>
+                <th>Actions</th>
                 <th>Item Name</th>
                 <th>Description</th>
+                <th>Unit</th>
+                <th>Price</th>
+                <th>Created By</th>
+                <th>Created Date</th>
+                <th>Updated By</th>
+                <th>Updated Date</th>
+                <th>Active</th>
             </tr>
         </thead>
 
@@ -38,15 +46,9 @@
             @foreach(var obj in Model)
             {
                 <tr>
-                    <td width="50%">
-                        @obj.Name*
-                    </td>
-                    <td width="30%">
-                        @obj.Description
-                    </td>
                     <td>
                         <div class="w-75 btn-group" role="group">
-                            <a asp-controller="Item" asp-action="Edit" asp-route-id="@obj.Id" class="btn btn-primary mx-2">
+                            <a asp-controller="Item" asp-action="CreateUpdate" asp-route-id="@obj.Id" class="btn btn-primary mx-2">
                                 <i class="bi bi-pencil-square"></i>
                                 Edit
                             </a>
@@ -56,6 +58,27 @@
                             </a>
                         </div>
                     </td> 
+                    <td>@obj.Name</td>
+                    <td>@obj.Description</td>
+                    <td>@obj.Unit</td>
+                    <td>@obj.Price</td>
+                    <td>@obj.CreatedBy</td>
+                    <td>@obj.CreatedDate</td>
+                    <td>@obj.UpdatedBy</td>
+                    <td>@obj.UpdatedDate</td>
+                    <td>
+                        @if(obj.IsActive == true)
+                        {
+                            <input class="form-check-input" type="checkbox" checked disabled/>
+                        }
+
+                        else
+                        {
+                             <input class="form-check-input" type="checkbox" disabled/>
+                        }
+
+                    </td>
+                    
                 </tr>
             }
         </tbody>

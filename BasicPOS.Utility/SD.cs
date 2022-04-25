@@ -11,6 +11,6 @@ namespace BasicPOS.Utility
         public const string CartStatus_InProgress = "INPROGRESS";
         public const string CartStatus_Completed = "COMPLETED";
 
-        public static string LoggedInUserName;
+        public static string LoggedInUserName = "ADMIN";
     }
 }

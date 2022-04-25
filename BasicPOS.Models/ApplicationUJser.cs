@@ -13,5 +13,6 @@ namespace BasicPOS.Models
         [Required]
         public string Name { get; set; }
         public string ContactNo { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 }

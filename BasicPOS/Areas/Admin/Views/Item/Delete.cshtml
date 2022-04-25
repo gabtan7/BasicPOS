@@ -1,0 +1,44 @@
+﻿
+@model Item
+
+<form method="post" asp-action="DeletePOST" enctype="multipart/form-data">
+    <input asp-for="Id" hidden/>
+
+    <div class="row">
+        <div class="col-10">
+            <div class="border p-3 mt-4 row">
+                <div class="row pb-2">
+                    <h2 class="text-primary">Delete Item</h2>
+                    <hr />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Name"></label>
+                    <input asp-for="Name" class="form-control" disabled/>
+                </div>        
+                
+                <div class="mb-3">
+                    <label asp-for="Description"></label>
+                    <input asp-for="Description" rows="3" class="form-control" disabled/>
+                </div>
+                
+                <div class="mb-3">
+                    <label asp-for="Unit"></label>
+                    <input asp-for="Unit" class="form-control" disabled/>
+                </div>        
+                
+                <div class="mb-3">
+                    <label asp-for="Price"></label>
+                    <input asp-for="Price" class="form-control" disabled/>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:150px"> Delete </button>
+               
+                <a asp-controller="Item" asp-action="Index" class="btn btn-secondary" style="width:150px">Back to List</a>
+            </div>
+        </div>
+    </div>
+
+
+</form>
+ 
