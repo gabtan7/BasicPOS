@@ -16,12 +16,14 @@ namespace BasicPOS.Models
         [Required]
         [Range(1, double.MaxValue)]
         public int Quantity { get; set; }
-        public string Status { get; set; }
+        public string Status { get; set; } = "INPROGRESS";
         public int ItemId { get; set; }
         [ForeignKey("ItemId")]
+        [ValidateNever]
         public Item Item { get; set; }
         public int StockId { get; set; }
         [ForeignKey("StockId")]
+        [ValidateNever]
         public Stock Stock { get; set; }
         public string ApplicationUserId { get; set; }
         [ForeignKey("ApplicationUserId")]

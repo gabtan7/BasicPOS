@@ -10,5 +10,7 @@ namespace BasicPOS.DataAccess.Repository.IRepository
     public interface ICartRepository : IRepository<Cart>
     {
         void Update(Cart obj);
+        int IncrementCount(Cart obj, int quantity);
+        int DecrementCount(Cart obj, int quantity);
     }
 }

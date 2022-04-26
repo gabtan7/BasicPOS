@@ -20,5 +20,15 @@ namespace BasicPOS.DataAccess.Repository.IRepository
         {
             _db.Carts.Update(obj);
         }
+        public int IncrementCount(Cart obj, int quantity)
+        {
+            obj.Quantity += quantity;
+            return obj.Quantity;
+        }
+        public int DecrementCount(Cart obj, int quantity)
+        {
+            obj.Quantity -= quantity;
+            return obj.Quantity;
+        }
     }
 }

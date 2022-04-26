@@ -1,0 +1,68 @@
+﻿
+@model IEnumerable<Stock>
+
+@{
+    ViewData["Title"] = "Items";
+}
+
+@*<partial name="_Notification" />*@
+
+   @*<h1>Index Stock</h1>*@
+   
+    <div class="container p-3">
+        <div class="row pt-4">
+            <div class="col-6">
+                <h2 class="text-primary">Browse Items</h2>
+            </div>   
+        </div>
+    </div>      
+
+       <div>
+        <form method="post" asp-action="Search" enctype="multipart/form-data">
+            <div class="container">
+                <div class="row">
+                     <div class="col-10">
+                        <input type="text" id="keyword" name="keyword" class="form-control" />
+                     </div>
+      
+                     <div class="col-2">
+                         <button type="submit" class="btn btn-primary" style="width:150px">Search Items</button>
+                     </div>
+                </div>
+            </div>
+         </form>
+     </div>
+
+    <br/>
+
+    <table class="table table-bordered table-striped" type="width:100%">
+        <thead>
+            <tr>
+                <th>Actions</th>
+                <th>Item Name</th>
+                <th>Description</th>
+                <th>Unit</th>
+                <th>Price</th>
+                <th>Available Quantity</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach(var obj in Model)
+            {
+                <tr>
+                    <td>
+                        <form method="post" asp-action="AddToCart" enctype="multipart/form-data">
+                            <input asp-for="@obj.ItemId" hidden/>
+                            <button type="submit" class="btn btn-primary" style="width:150px">Add To Cart</button>
+                        </form>
+                    </td> 
+                    <td>@obj.Item.Name</td>
+                    <td>@obj.Item.Description</td>
+                    <td>@obj.Item.Unit</td>
+                    <td>@obj.Item.Price</td>
+                    <td>@obj.AvailableQuantity</td>
+                </tr>
+            }
+        </tbody>
+    </table>

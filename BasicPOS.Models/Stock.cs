@@ -29,7 +29,7 @@ namespace BasicPOS.Models
         public string? UpdatedBy { get; set; }
         public bool IsActive { get; set; } = true;
         public decimal Quantity { get; set; }
-        [NotMapped]
-        public decimal TotalQuantity { get; set; }
+        [ValidateNever]
+        public decimal AvailableQuantity { get; set; }
     }
 }

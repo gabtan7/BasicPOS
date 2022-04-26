@@ -10,5 +10,6 @@ namespace BasicPOS.DataAccess.Repository.IRepository
     public interface IStockRepository : IRepository<Stock>
     {
         void Update(Stock obj);
+        decimal DecrementStock(Stock obj, decimal quantity);
     }
 }

@@ -20,5 +20,10 @@ namespace BasicPOS.DataAccess.Repository.IRepository
         {
             _db.Stocks.Update(obj);
         }
+        public decimal DecrementStock(Stock obj, decimal quantity)
+        {
+            obj.Quantity -= quantity;
+            return obj.Quantity;
+        }
     }
 }

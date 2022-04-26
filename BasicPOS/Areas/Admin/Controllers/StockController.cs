@@ -1,7 +1,9 @@
 ﻿using BasicPOS.DataAccess.Repository;
 using BasicPOS.Models;
 using BasicPOS.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BasicPOS.Web.Areas.Admin.Controllers
 {
@@ -19,6 +21,26 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
         {
             IEnumerable<Stock> StockList = await _unitOfWork.Stock.GetAll(includeProperties:"Item");
             return View(StockList);
+        }
+        public async Task<IActionResult> Search(string? keyword)
+        {
+            IEnumerable<Stock> stockList;
+
+            if (string.IsNullOrEmpty(keyword))
+                stockList = await _unitOfWork.Stock.GetAll(u=>u.IsActive == true, includeProperties: "Item");
+            else
+                stockList = await _unitOfWork.Stock.GetAll(u => u.IsActive == true && u.Item.Name.Contains(keyword), includeProperties: "Item");
+
+            IEnumerable<Stock> stockListGrouped;
+
+            stockListGrouped = stockList.GroupBy(i => i.ItemId).Select(n => new Stock
+            {
+                ItemId = n.Key,
+                Item = n.Select(i=>i.Item).FirstOrDefault(),
+                AvailableQuantity = n.Sum(q=>q.Quantity)
+            }).ToList();
+
+            return View(stockListGrouped);
         }
 
         public async Task<IActionResult> Create(int? itemId)
@@ -42,6 +64,7 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
         {
             obj.CreatedBy = SD.LoggedInUserName;
             obj.CreatedDate = DateTime.Now;
+            obj.AvailableQuantity = obj.Quantity;
 
             if (ModelState.IsValid)
             {
@@ -108,6 +131,57 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
             await _unitOfWork.Save();
             TempData["success"] = "Stock deleted successfully!";
             return RedirectToAction("Index");
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddToCart(Stock obj)
+        {
+            IEnumerable<Stock> stockList = await _unitOfWork.Stock.GetAll(u => u.ItemId == obj.ItemId);
+
+            if (stockList.AsEnumerable().Sum(q => q.Quantity) > 1)
+            {
+                var stock = stockList.Where(q=>q.Quantity > 1).OrderBy(s => s.CreatedDate).FirstOrDefault();
+
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+                var cartFromDb = await _unitOfWork.Cart.GetFirstOrDefault(
+                    u => u.ApplicationUserId == claim.Value && u.ItemId == stock.ItemId);
+
+                Cart cart = new Cart();
+                cart.ApplicationUserId = claim.Value;
+                cart.Quantity = 1;
+                cart.StockId = stock.Id;
+                cart.ItemId = stock.ItemId;
+
+                if (cartFromDb == null)
+                {
+                    cart.CreatedBy = SD.LoggedInUserName;
+                    cart.CreatedDate = DateTime.Now;
+                    await _unitOfWork.Cart.Add(cart);
+                }
+                else
+                {
+                    cart.UpdatedBy = SD.LoggedInUserName;
+                    cart.UpdatedDate = DateTime.Now;
+                    _unitOfWork.Cart.IncrementCount(cartFromDb, cart.Quantity);
+                }
+
+                _unitOfWork.Stock.DecrementStock(stock, cart.Quantity);
+
+                await _unitOfWork.Save();
+                TempData["success"] = "Item Added to Cart!";
+                //HttpContext.Session.SetInt32(SD.SessionCart, _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == claim.Value).ToList().Count);
+            }
+
+            else
+            {
+                TempData["error"] = "Item does not have remaining stocks!";
+            }
+
+            return RedirectToAction("Search");
         }
     }
 }
