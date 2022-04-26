@@ -21,6 +21,19 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
             IEnumerable<Item> itemList = await _unitOfWork.Item.GetAll();
             return View(itemList);
         }
+
+        public async Task<IActionResult> Search(string? keyword)
+        {
+            IEnumerable<Item> itemList;
+
+            if (string.IsNullOrEmpty(keyword))
+                itemList = await _unitOfWork.Item.GetAll(i => i.IsActive);
+            else
+                itemList = await _unitOfWork.Item.GetAll(i => i.Name.Contains(keyword) && i.IsActive);
+
+            return View(itemList);
+        }
+
         public async Task<IActionResult> CreateUpdate(int? Id)
         {
             if (Id == null || Id == 0)
@@ -51,7 +64,7 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
                 if (ModelState.IsValid)
                 {
                     await _unitOfWork.Item.Add(obj);
-                    TempData["success"] = "Company created successfully!";
+                    TempData["success"] = "Item created successfully!";
                 }
 
                 else

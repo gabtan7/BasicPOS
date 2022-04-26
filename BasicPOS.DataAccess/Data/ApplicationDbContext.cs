@@ -21,16 +21,5 @@ namespace BasicPOS.DataAccess.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderLine> OrderLines { get; set; }
         public DbSet<Stock> Stocks { get; set; }
-
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    if(modelBuilder.Model == Carts || modelBuilder.Model == OrderLines)
-        //    {
-        //        foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
-        //        {
-        //            relationship.DeleteBehavior = DeleteBehavior.Restrict;
-        //        }
-        //    }
-        //}
     }
 }

@@ -1,0 +1,92 @@
+﻿
+
+@model IEnumerable<Stock>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@*<partial name="_Notification" />*@
+
+   @*<h1>Index Stock</h1>*@
+
+    <div class="container p-3">
+        <div class="row pt-4">
+            <div class="col-6">
+                <h2 class="text-primary">Stock List</h2>
+            </div>   
+            <div class="col-6 text-end">
+                <a asp-controller="Item" asp-action="Search" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i>
+                    Create New Stock
+                </a> 
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="col-12">
+        
+    <table class="table table-bordered table-striped" type="width:100%">
+        <thead>
+            <tr>
+                <th>Actions</th>
+                <th>Stock No</th>
+                <th>Item Name</th>
+                <th>Description</th>
+                <th>Unit</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Created By</th>
+                <th>Created Date</th>
+                <th>Updated By</th>
+                <th>Updated Date</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach(var obj in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="w-75 btn-group" role="group">
+                            <a asp-controller="Stock" asp-action="Update" asp-route-id="@obj.Id" class="btn btn-primary mx-2">
+                                <i class="bi bi-pencil-square"></i>
+                                Edit
+                            </a>
+                            <a asp-controller="Stock" asp-action="Delete" asp-route-id="@obj.Id" class="btn btn-danger mx-2">
+                                <i class="bi bi-trash-fill"></i>
+                                Delete
+                            </a>
+                        </div>
+                    </td> 
+                    <td>@obj.StockNo</td>
+                    <td>@obj.Item.Name</td>
+                    <td>@obj.Item.Description</td>
+                    <td>@obj.Item.Unit</td>
+                    <td>@obj.Item.Price</td>
+                    <td>@obj.Quantity</td>
+                    <td>@obj.CreatedBy</td>
+                    <td>@obj.CreatedDate</td>
+                    <td>@obj.UpdatedBy</td>
+                    <td>@obj.UpdatedDate</td>
+                    <td>
+                        @if(obj.IsActive == true)
+                        {
+                            <input class="form-check-input" type="checkbox" checked disabled/>
+                        }
+
+                        else
+                        {
+                             <input class="form-check-input" type="checkbox" disabled/>
+                        }
+
+                    </td>
+                    
+                </tr>
+            }
+        </tbody>
+    </table>
+    </div>

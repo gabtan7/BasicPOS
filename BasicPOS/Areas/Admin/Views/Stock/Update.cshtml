@@ -1,0 +1,62 @@
+﻿
+@model Stock
+
+<form method="post" asp-action="Update" enctype="multipart/form-data">
+<input asp-for="@Model.Id" hidden/>
+<input asp-for="@Model.ItemId" hidden/>
+
+    <div class="row">
+        <div class="col-10">
+            <div class="border p-3 mt-4 row">
+                <div class="row pb-2">
+                    <h2 class="text-primary">Update Stock</h2>
+                    <hr />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Item.Name"></label>
+                    <input asp-for="Item.Name" class="form-control" disabled/>
+                </div>        
+                
+                <div class="mb-3">
+                    <label asp-for="Item.Description"></label>
+                    <input asp-for="Item.Description" rows="3" class="form-control" disabled/>
+                </div>
+                
+                <div class="mb-3">
+                    <label asp-for="Item.Unit"></label>
+                    <input asp-for="Item.Unit" class="form-control" disabled/>
+                </div>        
+                
+                <div class="mb-3">
+                    <label asp-for="Item.Price"></label>
+                    <input asp-for="Item.Price" class="form-control" disabled/>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="StockNo"></label>
+                    <input asp-for="StockNo" class="form-control"/>
+                    <span asp-validation-for="StockNo" class="text-danger"></span>
+                </div>
+                
+                <div class="mb-3">
+                    <label asp-for="Quantity"></label>
+                    <input asp-for="Quantity" class="form-control"/>
+                    <span asp-validation-for="Quantity" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:150px"> Update </button>
+       
+                <a asp-controller="Stock" asp-action="Index" class="btn btn-secondary" style="width:150px">Back to List</a>
+            </div>
+        </div>
+    </div>
+
+
+</form>
+ 
+@section Scripts{
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+} 

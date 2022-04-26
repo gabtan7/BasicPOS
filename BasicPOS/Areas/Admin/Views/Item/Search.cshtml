@@ -1,0 +1,69 @@
+﻿
+
+@model IEnumerable<Item>
+
+@{
+    ViewData["Title"] = "Search Item";
+}
+
+@*<partial name="_Notification" />*@
+
+   @*<h1>Index Item</h1>*@
+
+    <div class="container p-3">
+        <div class="row pt-4">
+            <div class="col-6">
+                <h2 class="text-primary">Item List</h2>
+            </div>   
+        </div>
+    </div>      
+    
+    <div>
+        <form method="post" asp-action="Search" enctype="multipart/form-data">
+            <div class="container">
+                <div class="row">
+                     <div class="col-10">
+                        <input type="text" id="keyword" name="keyword" class="form-control" />
+                     </div>
+      
+                     <div class="col-2">
+                         <button type="submit" class="btn btn-primary" style="width:150px">Search Item</button>
+                     </div>
+                </div>
+            </div>
+         </form>
+     </div>
+
+    <br/>
+
+    <table class="table table-bordered table-striped" stype="width:100%">
+        <thead>
+            <tr>
+                <th>Actions</th>
+                <th>Item Name</th>
+                <th>Description</th>
+                <th>Unit</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach(var obj in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="w-75 btn-group" role="group">
+                            <a asp-controller="Stock" asp-action="Create" asp-route-itemId="@obj.Id" class="btn btn-primary mx-2">
+                                <i class="bi bi-check-circle"></i>
+                                SELECT
+                            </a>
+                        </div>
+                    </td> 
+                    <td>@obj.Name</td>
+                    <td>@obj.Description</td>
+                    <td>@obj.Unit</td>
+                    <td>@obj.Price</td>
+                </tr>
+            }
+        </tbody>
+    </table>

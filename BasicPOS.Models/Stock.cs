@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -13,10 +14,12 @@ namespace BasicPOS.Models
     {
         [Key]
         public int Id { get; set; }
+        [DisplayName("Stock No")]
         [Required]
         public string StockNo { get; set; }
         public int ItemId { get; set; }
         [ForeignKey("ItemId")]
+        [ValidateNever]
         public Item Item { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public string CreatedBy { get; set; } = "";
@@ -25,5 +28,8 @@ namespace BasicPOS.Models
         [ValidateNever]
         public string? UpdatedBy { get; set; }
         public bool IsActive { get; set; } = true;
+        public decimal Quantity { get; set; }
+        [NotMapped]
+        public decimal TotalQuantity { get; set; }
     }
 }
