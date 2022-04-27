@@ -18,7 +18,7 @@ namespace BasicPOS.Models
         public string Unit { get; set; }
         [Required]
         [Range(0.001, double.MaxValue)]
-        public double Price { get; set; }
+        public decimal Price { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public string CreatedBy { get; set; } = "";
         [ValidateNever]

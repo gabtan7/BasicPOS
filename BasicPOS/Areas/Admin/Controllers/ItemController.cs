@@ -10,7 +10,7 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
     public class ItemController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        
+
         public ItemController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -58,11 +58,9 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
         {
             if (obj.Id == 0)
             {
-                obj.CreatedBy = SD.LoggedInUserName;
-                obj.CreatedDate = DateTime.Now;
-
                 if (ModelState.IsValid)
                 {
+                    obj.CreatedBy = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value;
                     await _unitOfWork.Item.Add(obj);
                     TempData["success"] = "Item created successfully!";
                 }
@@ -72,11 +70,9 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
             }
             else
             {
-                obj.UpdatedBy = SD.LoggedInUserName;
-                obj.UpdatedDate = DateTime.Now;
-
                 if (ModelState.IsValid)
                 {
+                    obj.UpdatedBy = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value;
                     _unitOfWork.Item.Update(obj);
                     TempData["success"] = "Item updated successfully!";
                 }
@@ -122,6 +118,7 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
                 return NotFound();
             }
 
+            ItemFromDb.UpdatedBy = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value;
             _unitOfWork.Item.Remove(ItemFromDb);
             await _unitOfWork.Save();
             TempData["success"] = "Item deleted successfully!";

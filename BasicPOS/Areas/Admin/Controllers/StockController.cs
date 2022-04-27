@@ -31,16 +31,16 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
             else
                 stockList = await _unitOfWork.Stock.GetAll(u => u.IsActive == true && u.Item.Name.Contains(keyword), includeProperties: "Item");
 
-            IEnumerable<Stock> stockListGrouped;
+            //IEnumerable<Stock> stockListGrouped;
 
-            stockListGrouped = stockList.GroupBy(i => i.ItemId).Select(n => new Stock
-            {
-                ItemId = n.Key,
-                Item = n.Select(i=>i.Item).FirstOrDefault(),
-                AvailableQuantity = n.Sum(q=>q.Quantity)
-            }).ToList();
+            //stockListGrouped = stockList.GroupBy(i => i.ItemId).Select(n => new Stock
+            //{
+            //    ItemId = n.Key,
+            //    Item = n.Select(i=>i.Item).FirstOrDefault(),
+            //    AvailableQuantity = n.Sum(q=>q.Quantity)
+            //}).ToList();
 
-            return View(stockListGrouped);
+            return View(stockList.Where(s => s.AvailableQuantity > 0));
         }
 
         public async Task<IActionResult> Create(int? itemId)
@@ -62,14 +62,34 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Stock obj)
         {
-            obj.CreatedBy = SD.LoggedInUserName;
-            obj.CreatedDate = DateTime.Now;
-            obj.AvailableQuantity = obj.Quantity;
+            var existingStock = await _unitOfWork.Stock.GetFirstOrDefault(u => u.ItemId == obj.ItemId && u.IsActive == true);
 
-            if (ModelState.IsValid)
+            string currentUser = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            if (existingStock != null)
             {
-                await _unitOfWork.Stock.Add(obj);
-                TempData["success"] = "Stock created successfully!";
+                existingStock.Quantity += obj.Quantity;
+                existingStock.AvailableQuantity += obj.Quantity;
+
+                if(ModelState.IsValid)
+                {
+                    existingStock.UpdatedBy = currentUser;
+                    _unitOfWork.Stock.UntrackEntity(obj);
+                    _unitOfWork.Stock.Update(existingStock);
+                    TempData["success"] = "Stock added successfully!";
+                }
+            }
+
+            else
+            {
+                obj.AvailableQuantity = obj.Quantity;
+
+                if (ModelState.IsValid)
+                {
+                    obj.CreatedBy = currentUser;
+                    await _unitOfWork.Stock.Add(obj);
+                    TempData["success"] = "Stock created successfully!";
+                }
             }
 
             await _unitOfWork.Save();
@@ -80,11 +100,9 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(Stock obj)
         {
-            obj.UpdatedBy = SD.LoggedInUserName;
-            obj.UpdatedDate = DateTime.Now;
-
             if (ModelState.IsValid)
             {
+                obj.UpdatedBy = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value;
                 _unitOfWork.Stock.Update(obj);
                 TempData["success"] = "Stock updated successfully!";
             }
@@ -127,6 +145,7 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
                 return NotFound();
             }
 
+            StockFromDb.UpdatedBy = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value;
             _unitOfWork.Stock.Remove(StockFromDb);
             await _unitOfWork.Save();
             TempData["success"] = "Stock deleted successfully!";
@@ -138,34 +157,35 @@ namespace BasicPOS.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart(Stock obj)
         {
-            IEnumerable<Stock> stockList = await _unitOfWork.Stock.GetAll(u => u.ItemId == obj.ItemId);
+            //IEnumerable<Stock> stockList = await _unitOfWork.Stock.GetAll(u => u.ItemId == obj.ItemId);
 
-            if (stockList.AsEnumerable().Sum(q => q.Quantity) > 1)
-            {
-                var stock = stockList.Where(q=>q.Quantity > 1).OrderBy(s => s.CreatedDate).FirstOrDefault();
+            var stock = await _unitOfWork.Stock.GetFirstOrDefault(u => u.Id == obj.Id && u.IsActive == true);
 
-                var claimsIdentity = (ClaimsIdentity)User.Identity;
-                var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            string currentUser = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            //if (stockList.AsEnumerable().Sum(q => q.Quantity) > 1)
+            //{
+            if(stock.Quantity > 1)
+            { 
+                //var stock = stockList.Where(q=>q.Quantity > 1).OrderBy(s => s.CreatedDate).FirstOrDefault();
 
                 var cartFromDb = await _unitOfWork.Cart.GetFirstOrDefault(
-                    u => u.ApplicationUserId == claim.Value && u.ItemId == stock.ItemId);
+                    u => u.ApplicationUserId == currentUser && u.ItemId == stock.ItemId && u.IsActive == true);
 
                 Cart cart = new Cart();
-                cart.ApplicationUserId = claim.Value;
+                cart.ApplicationUserId = currentUser;
                 cart.Quantity = 1;
                 cart.StockId = stock.Id;
                 cart.ItemId = stock.ItemId;
 
                 if (cartFromDb == null)
                 {
-                    cart.CreatedBy = SD.LoggedInUserName;
-                    cart.CreatedDate = DateTime.Now;
+                    obj.CreatedBy = currentUser;
                     await _unitOfWork.Cart.Add(cart);
                 }
                 else
                 {
-                    cart.UpdatedBy = SD.LoggedInUserName;
-                    cart.UpdatedDate = DateTime.Now;
+                    obj.UpdatedBy = currentUser;
                     _unitOfWork.Cart.IncrementCount(cartFromDb, cart.Quantity);
                 }
 

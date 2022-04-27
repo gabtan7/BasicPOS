@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BasicPOS.Models\BasicPOS.Models.csproj" />
+    <ProjectReference Include="..\BasicPOS.Utility\BasicPOS.Utility.csproj" />
   </ItemGroup>
 
 </Project>

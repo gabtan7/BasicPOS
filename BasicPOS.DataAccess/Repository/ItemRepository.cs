@@ -1,5 +1,6 @@
 ﻿using BasicPOS.DataAccess.Data;
 using BasicPOS.Models;
+using BasicPOS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace BasicPOS.DataAccess.Repository.IRepository
 
         public void Update(Item obj)
         {
+            obj.UpdatedDate = DateTime.Now;
             _db.Items.Update(obj);
         }
     }

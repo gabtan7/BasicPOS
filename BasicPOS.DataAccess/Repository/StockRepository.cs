@@ -1,5 +1,6 @@
 ﻿using BasicPOS.DataAccess.Data;
 using BasicPOS.Models;
+using BasicPOS.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,11 +19,17 @@ namespace BasicPOS.DataAccess.Repository.IRepository
 
         public void Update(Stock obj)
         {
+            obj.UpdatedDate = DateTime.Now;
             _db.Stocks.Update(obj);
+        }
+        public decimal IncrementStock(Stock obj, decimal quantity)
+        {
+            obj.AvailableQuantity += quantity;
+            return obj.Quantity;
         }
         public decimal DecrementStock(Stock obj, decimal quantity)
         {
-            obj.Quantity -= quantity;
+            obj.AvailableQuantity -= quantity;
             return obj.Quantity;
         }
     }

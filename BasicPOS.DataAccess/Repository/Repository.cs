@@ -1,5 +1,6 @@
 ﻿using BasicPOS.DataAccess.Data;
 using BasicPOS.Models;
+using BasicPOS.Utility;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,9 @@ namespace BasicPOS.DataAccess.Repository.IRepository
 
         public async Task Add(T entity)
         {
+            if (entity.GetType().GetProperty("CreatedDate") != null)
+                entity.GetType().GetProperty("CreatedDate").SetValue(entity, DateTime.Now);
+
             await dbSet.AddAsync(entity);
         }
 
@@ -74,6 +78,11 @@ namespace BasicPOS.DataAccess.Repository.IRepository
         {
             entity.GetType().GetProperty("IsActive").SetValue(entity, false);
             dbSet.Update(entity);
+        }
+
+        public void UntrackEntity(T entity)
+        {
+            _db.Entry(entity).State = EntityState.Detached;
         }
 
         //public void RemoveRange(IEnumerable<T> entity)

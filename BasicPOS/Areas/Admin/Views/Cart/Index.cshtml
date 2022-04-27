@@ -1,0 +1,65 @@
+﻿
+@model CartVM
+
+@{
+    ViewData["Title"] = "Cart Items";
+}
+
+@*<partial name="_Notification" />*@
+
+   @*<h1>Index Stock</h1>*@
+   
+    <div class="container p-3">
+        <div class="row pt-4">
+            <div class="col-6">
+                <h2 class="text-primary">Cart Items</h2>
+            </div>   
+        </div>
+    </div>      
+
+    <br/>
+
+    <table class="table table-bordered table-striped" type="width:100%">
+        <thead>
+            <tr>
+                <th>Actions</th>
+                <th>Item Name</th>
+                <th>Description</th>
+                <th>Unit</th>
+                <th>Available Quantity</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach(var obj in Model.CartList)
+            {
+                <tr>
+                    <td>
+                        <div class="col-6 col-sm-4 col-lg-6 pt-2">
+							<div class="w-100 btn-group" role="group">
+								<a asp-action="IncrementCartItem" asp-route-cartId="@obj.Id" class="btn btn-primary">
+									ADD
+								</a> &nbsp;
+								<a asp-action="DecrementCartItem" asp-route-cartId="@obj.Id" class="btn btn-warning">
+									MINUS
+								</a> &nbsp;
+							    <a asp-action="Delete" asp-route-cartId="@obj.Id" class="btn btn-danger">
+							    	DELETE
+							    </a>
+							</div>
+						</div>
+                    </td> 
+                    <td>@obj.Item.Name</td>
+                    <td>@obj.Item.Description</td>
+                    <td>@obj.Item.Unit</td>
+                    <td>@obj.Stock.AvailableQuantity</td>
+                    <td>@obj.Item.Price</td>
+                    <td>@obj.Quantity</td>
+                    <td>@(obj.Quantity * obj.Item.Price)</td>
+                </tr>
+            }
+        </tbody>
+    </table>

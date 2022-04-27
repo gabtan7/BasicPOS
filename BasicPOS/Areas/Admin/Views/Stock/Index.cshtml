@@ -32,16 +32,17 @@
         <thead>
             <tr>
                 <th>Actions</th>
-                <th>Stock No</th>
+                @*<th>Stock No</th>*@
                 <th>Item Name</th>
                 <th>Description</th>
                 <th>Unit</th>
                 <th>Price</th>
-                <th>Quantity</th>
-                <th>Created By</th>
+                <th>Original Quantity</th>
+                <th>Available Quantity</th>
+    @*            <th>Created By</th>
                 <th>Created Date</th>
                 <th>Updated By</th>
-                <th>Updated Date</th>
+                <th>Updated Date</th>*@
                 <th>Active</th>
             </tr>
         </thead>
@@ -62,16 +63,17 @@
                             </a>
                         </div>
                     </td> 
-                    <td>@obj.StockNo</td>
+                    @*<td>@obj.StockNo</td>*@
                     <td>@obj.Item.Name</td>
                     <td>@obj.Item.Description</td>
                     <td>@obj.Item.Unit</td>
                     <td>@obj.Item.Price</td>
                     <td>@obj.Quantity</td>
-                    <td>@obj.CreatedBy</td>
+                    <td>@obj.AvailableQuantity</td>
+              @*      <td>@obj.CreatedBy</td>
                     <td>@obj.CreatedDate</td>
                     <td>@obj.UpdatedBy</td>
-                    <td>@obj.UpdatedDate</td>
+                    <td>@obj.UpdatedDate</td>*@
                     <td>
                         @if(obj.IsActive == true)
                         {

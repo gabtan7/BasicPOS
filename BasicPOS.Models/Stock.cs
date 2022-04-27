@@ -15,8 +15,8 @@ namespace BasicPOS.Models
         [Key]
         public int Id { get; set; }
         [DisplayName("Stock No")]
-        [Required]
-        public string StockNo { get; set; }
+        //[Required]
+        //public string StockNo { get; set; }
         public int ItemId { get; set; }
         [ForeignKey("ItemId")]
         [ValidateNever]

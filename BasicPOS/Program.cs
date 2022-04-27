@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Identity;
 using BasicPOS.DataAccess.Repository;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using BasicPOS.Utility;
+using System.Security.Claims;
+using BasicPOS.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 //var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection");;
