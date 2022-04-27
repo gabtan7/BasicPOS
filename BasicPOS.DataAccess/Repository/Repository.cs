@@ -80,6 +80,15 @@ namespace BasicPOS.DataAccess.Repository.IRepository
             dbSet.Update(entity);
         }
 
+        public void RemoveRange(IEnumerable<T> entity)
+        {
+            foreach(var t in entity)
+            {
+                t.GetType().GetProperty("IsActive").SetValue(t, false);
+                dbSet.Update(t);
+            }
+        }
+
         public void UntrackEntity(T entity)
         {
             _db.Entry(entity).State = EntityState.Detached;

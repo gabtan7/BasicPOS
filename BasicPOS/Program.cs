@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using BasicPOS.Utility;
 using System.Security.Claims;
 using BasicPOS.Models;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 //var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection");;
@@ -38,6 +39,9 @@ builder.Services.ConfigureApplicationCookie(options => {
     options.LogoutPath = $"/Identity/Account/Logout";
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
 });
+
+
+StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
 var app = builder.Build();
 

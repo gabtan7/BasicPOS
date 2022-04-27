@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BasicPOS.DataAccess.Repository;
 using BasicPOS.Models;
+using BasicPOS.Utility;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -33,7 +34,7 @@ namespace BasicPOS.Web.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
-        //private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IUnitOfWork _unitOfWork;
 
         public RegisterModel(
@@ -42,7 +43,7 @@ namespace BasicPOS.Web.Areas.Identity.Pages.Account
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            //RoleManager<IdentityRole> roleManager,
+            RoleManager<IdentityRole> roleManager,
             IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
@@ -52,7 +53,7 @@ namespace BasicPOS.Web.Areas.Identity.Pages.Account
             _logger = logger;
             _emailSender = emailSender;
             _unitOfWork = unitOfWork;
-            //_roleManager = roleManager;
+            _roleManager = roleManager;
         }
 
         /// <summary>
@@ -111,27 +112,31 @@ namespace BasicPOS.Web.Areas.Identity.Pages.Account
             [Required]
             public string Name { get; set; }
             public string ContactNo { get; set; }
-            //[ValidateNever]
-            //public IEnumerable<SelectListItem> RoleList { get; set; }
+            [ValidateNever]
+            public IEnumerable<SelectListItem> RoleList { get; set; }
+            [Required]
+            public string Role { get; set; }
         }
 
 
         public async Task OnGetAsync(string returnUrl = null)
         {
-            //_roleManager.CreateAsync(new IdentityRole("ADMIN")).GetAwaiter().GetResult();
-            //_roleManager.CreateAsync(new IdentityRole("CUSTOMER")).GetAwaiter().GetResult();
+            if(!_roleManager.RoleExistsAsync(SD.RoleAdmin).GetAwaiter().GetResult())
+                _roleManager.CreateAsync(new IdentityRole(SD.RoleAdmin)).GetAwaiter().GetResult();
+
+            if (!_roleManager.RoleExistsAsync(SD.RoleCustomer).GetAwaiter().GetResult())
+                _roleManager.CreateAsync(new IdentityRole(SD.RoleCustomer)).GetAwaiter().GetResult();
+
+            Input = new InputModel
+            {
+                RoleList = new List<SelectListItem>()
+                {
+                    new SelectListItem() { Text = SD.RoleCustomer, Value = SD.RoleCustomer }
+                }
+            };
 
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
-            //Input = new InputModel()
-            //{
-            //    RoleList = _roleManager.Roles.Select(x => x.Name).Select(i => new SelectListItem
-            //    {
-            //        Text = i,
-            //        Value = i
-            //    })
-            //};
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -153,6 +158,11 @@ namespace BasicPOS.Web.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
+
+                    if (Input.Role == null)
+                        await _userManager.AddToRoleAsync(user, "CUSTOMER");
+                    else
+                        await _userManager.AddToRoleAsync(user, Input.Role);
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

@@ -35,5 +35,19 @@ namespace BasicPOS.DataAccess.Repository.IRepository
             obj.Quantity -= quantity;
             return obj.Quantity;
         }
+        public void UpdateCartItemStatus(Cart obj, string status)
+        {
+            obj.Status = status;
+            _db.Carts.Update(obj);
+        }
+
+        public void UpdateCartItemStatus(IEnumerable<Cart> cartList, string status)
+        {
+            foreach(var cart in cartList)
+            {
+                cart.Status = status;
+                _db.Carts.Update(cart);
+            }
+        }
     }
 }

@@ -28,6 +28,8 @@ namespace BasicPOS.Models
         [ValidateNever]
         public Stock Stock { get; set; }
         public int Quantity { get; set; }
+        public decimal Price { get; set; }
+        public decimal Total { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public string CreatedBy { get; set; } = "";
         [ValidateNever]

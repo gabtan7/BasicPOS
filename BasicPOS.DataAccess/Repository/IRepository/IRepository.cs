@@ -16,6 +16,6 @@ namespace BasicPOS.DataAccess.Repository.IRepository
         Task Add(T entity);
         void Remove(T entity);
         void UntrackEntity(T entity);
-        //void RemoveRange(IEnumerable<T> entity);
+        void RemoveRange(IEnumerable<T> entity);
     }
 }

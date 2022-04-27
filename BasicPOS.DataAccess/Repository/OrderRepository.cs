@@ -22,5 +22,27 @@ namespace BasicPOS.DataAccess.Repository.IRepository
             obj.UpdatedDate = DateTime.Now;
             _db.Orders.Update(obj);
         }
+        public void UpdatePaymentStatus(int id, string sessionId, string paymentIntentId, decimal orderTotal)
+        {
+            var orderFromDb = _db.Orders.FirstOrDefault(u => u.Id == id);
+
+            if (orderFromDb != null)
+            {
+                orderFromDb.UpdatedDate = DateTime.Now;
+                orderFromDb.OrderTotal = orderTotal;
+                orderFromDb.SessionId = sessionId;
+                orderFromDb.PaymentIntentId = paymentIntentId;
+            }
+        }
+        public void UpdateStatus(int id, string status)
+        {
+            var orderFromDb = _db.Orders.FirstOrDefault(u => u.Id == id);
+
+            if (orderFromDb != null)
+            {
+                orderFromDb.UpdatedDate = DateTime.Now;
+                orderFromDb.OrderStatus = status;
+            }
+        }
     }
 }

@@ -9,7 +9,10 @@ namespace BasicPOS.Utility
     public static class SD
     {
         public const string CartStatus_InProgress = "INPROGRESS";
-        public const string CartStatus_Completed = "COMPLETED";
+        public const string CartStatus_Done = "DONE";
+        public const string CartStatus_CANCELLED = "CANCELLED";
 
+        public const string RoleAdmin = "ADMIN";
+        public const string RoleCustomer = "CUSTOMER";
     }
 }

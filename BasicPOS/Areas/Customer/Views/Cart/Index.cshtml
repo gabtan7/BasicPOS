@@ -63,3 +63,18 @@
             }
         </tbody>
     </table>
+    
+    <br/>
+
+   <div class="row">
+        <h4 class="text-primary text-end">Cart Total: @Model.CartTotal</h4>
+   </div>   
+
+   <br />
+   <br />
+   
+   <div class="row col-3 float-end">
+        <form method="post" asp-action="PlaceOrder" enctype="multipart/form-data">
+            <button type="submit" value="Place Order" class="btn btn-primary form-control">Place Order</button>
+        </form>
+   </div>

@@ -21,10 +21,11 @@ namespace BasicPOS.Models
         [Required]
         public DateTime DateShipped { get; set; }
         public DateTime DateApproved { get; set; }
-        public double OrderTotal { get; set; }
-        public string? OrderStatus { get; set; }
+        public decimal OrderTotal { get; set; }
+        public string? OrderStatus { get; set; } = "INPROGRESS";
         public DateTime PaymentDate { get; set; }
         public string? PaymentIntentId { get; set; }
+        public string? SessionId { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public string CreatedBy { get; set; } = "";
         [ValidateNever]

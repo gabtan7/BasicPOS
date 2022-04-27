@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using BasicPOS.Utility
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -23,19 +24,23 @@
 							<a class="nav-link " asp-area="Customer" asp-controller="Home" asp-action="Index">Home</a>
 						</li>
 					
-						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Content Managment</a>
-							<div class="dropdown-menu">
-								<a class="dropdown-item" asp-area="Admin" asp-controller="Item" asp-action="Index">Item</a>
-								<a class="dropdown-item" asp-area="Admin" asp-controller="Stock" asp-action="Index">Stocks</a>
-							</div>
-						</li>
+						@if(User.IsInRole(SD.RoleAdmin))
+						{
+							<li class="nav-item dropdown">
+								<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Content Managment</a>
+								<div class="dropdown-menu">
+									<a class="dropdown-item" asp-area="Admin" asp-controller="Item" asp-action="Index">Item</a>
+									<a class="dropdown-item" asp-area="Admin" asp-controller="Stock" asp-action="Index">Stocks</a>
+								</div>
+							</li>
+						}
 
 						<li class="nav-item">
 							<a class="nav-link " asp-area="Admin" asp-controller="Stock" asp-action="Search"> Browse Items </a>
 						</li>
+
 						<li class="nav-item">
-							<a class="nav-link " asp-area="Admin" asp-controller="Cart" asp-action="Index"> Cart </a>
+							<a class="nav-link " asp-area="Customer" asp-controller="Cart" asp-action="Index"> Cart </a>
 						</li>
 					</ul>
 					<partial name="_LoginPartial" />
