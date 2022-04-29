@@ -8,7 +8,7 @@ namespace BasicPOS.Models.ViewModels
 {
     public class OrderVM
     {
-        Order Order { get; set; }
-        IEnumerable<OrderLine> OrderLine { get; set; }
+        public Order Order { get; set; }
+        public IEnumerable<OrderLine> OrderLine { get; set; }
     }
 }

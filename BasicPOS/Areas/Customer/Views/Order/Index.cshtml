@@ -1,5 +1,61 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿
+
+@model IEnumerable<Order>
+
 @{
+    ViewData["Title"] = "Orders";
 }
+
+    <div class="container p-3">
+        <div class="row pt-4">
+            <div class="col-6">
+                <h2 class="text-primary">Orders</h2>
+            </div>   
+        </div>
+    </div>
+
+    <br />
+
+    <table class="table table-bordered table-striped" stype="width:100%">
+        <thead>
+            <tr>
+                <th>Actions</th>
+                <th>Order No</th>
+                <th>Order Total</th>
+                <th>Order Status</th>
+                <th>Transaction Date</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach(var obj in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="w-75 btn-group" role="group">
+                            <a asp-controller="Order" asp-action="Details" asp-route-id="@obj.Id" class="btn btn-primary mx-2">
+                                View Details
+                            </a>
+                        </div>
+                    </td> 
+                    <td>@obj.Id</td>
+                    <td>@obj.OrderTotal</td>
+                    <td>@obj.OrderStatus</td>
+                    <td>@obj.CreatedDate</td>
+                    <td>
+                        @if(obj.IsActive == true)
+                        {
+                            <input class="form-check-input" type="checkbox" checked disabled/>
+                        }
+
+                        else
+                        {
+                             <input class="form-check-input" type="checkbox" disabled/>
+                        }
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>

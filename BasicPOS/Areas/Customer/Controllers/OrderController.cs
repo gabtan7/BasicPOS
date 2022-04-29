@@ -10,9 +10,13 @@ using Stripe.Checkout;
 namespace BasicPOS.Web.Areas.Customer.Controllers
 {
     [Area("Customer")]
+
     public class OrderController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+
+        [BindProperty]
+        public OrderVM OrderVM { get; set; }
 
         public OrderController(IUnitOfWork unitOfWork)
         {
@@ -21,16 +25,44 @@ namespace BasicPOS.Web.Areas.Customer.Controllers
 
         public async Task<IActionResult> Index()
         {
-            IEnumerable<Order> OrderList = await _unitOfWork.Order.GetAll(u => u.IsActive == true && u.ApplicationUserId == ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value);
+            IEnumerable<Order> orderList;
 
-            return View(OrderList);
+            if (User.IsInRole(SD.Role_Admin))
+                orderList = await _unitOfWork.Order.GetAll(u => u.IsActive == true);
+
+            else
+                orderList = await _unitOfWork.Order.GetAll(u => u.IsActive == true && u.ApplicationUserId == ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value);
+
+            return View(orderList.OrderByDescending(x=>x.Id));
         }
 
-        public async Task<IActionResult> OrderDetails(int? orderId)
+        public async Task<IActionResult> Details(int? Id)
         {
-            var order = await _unitOfWork.OrderLine.GetFirstOrDefault(u => u.OrderId == orderId);
+            OrderVM = new OrderVM();
+            OrderVM.Order = await _unitOfWork.Order.GetFirstOrDefault(u => u.Id == Id && u.IsActive);
+            OrderVM.Order.DateApproved = DateTime.Now;
+            OrderVM.OrderLine = await _unitOfWork.OrderLine.GetAll(u => u.OrderId == Id && u.IsActive, includeProperties: "Item");
 
-            return View(order);
+            return View(OrderVM);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Approve()
+        {
+            OrderVM.Order = await _unitOfWork.Order.GetFirstOrDefault(u => u.Id == OrderVM.Order.Id && u.IsActive);
+            OrderVM.OrderLine = await _unitOfWork.OrderLine.GetAll(u => u.OrderId == OrderVM.Order.Id && u.IsActive, includeProperties: "Item");
+
+            if (OrderVM.Order.OrderStatus == SD.OrderStatus_Paid)
+            {
+                _unitOfWork.Order.UpdateStatus(OrderVM.Order.Id, SD.OrderStatus_Done);
+                await _unitOfWork.Save();
+            }
+
+            else
+                TempData["error"] = "Order already approved!";
+
+            return RedirectToAction("Details", new {id = OrderVM.Order.Id});
         }
     }
 }

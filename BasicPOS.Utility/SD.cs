@@ -12,7 +12,12 @@ namespace BasicPOS.Utility
         public const string CartStatus_Done = "DONE";
         public const string CartStatus_CANCELLED = "CANCELLED";
 
-        public const string RoleAdmin = "ADMIN";
-        public const string RoleCustomer = "CUSTOMER";
+        public const string Role_Admin = "ADMIN";
+        public const string Role_Customer = "CUSTOMER";
+
+        public const string OrderStatus_Paid = "PAID";
+        public const string OrderStatus_Done = "DONE";
+        public const string OrderStatus_Cancelled = "CANCELLED";
+
     }
 }

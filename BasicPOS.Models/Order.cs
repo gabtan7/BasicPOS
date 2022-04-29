@@ -17,9 +17,6 @@ namespace BasicPOS.Models
         [ForeignKey("ApplicationUserId")]
         [ValidateNever]
         public ApplicationUser ApplicationUser { get; set; }
-
-        [Required]
-        public DateTime DateShipped { get; set; }
         public DateTime DateApproved { get; set; }
         public decimal OrderTotal { get; set; }
         public string? OrderStatus { get; set; } = "INPROGRESS";

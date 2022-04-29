@@ -116,75 +116,83 @@ namespace BasicPOS.Web.Areas.Customer.Controllers
 
             CartVM.CartList = await _unitOfWork.Cart.GetAll(u => u.IsActive == true && u.Status == SD.CartStatus_InProgress && u.ApplicationUserId == currentUser, includeProperties: "Item,Stock");
 
-            Order order = new Order();
-            order.ApplicationUserId = currentUser;
-            order.CreatedBy = currentUser;
-            await _unitOfWork.Order.Add(order);
-            await _unitOfWork.Save();
-
-            var orderId = order.Id;
-
-            foreach (var cart in CartVM.CartList)
+            if (CartVM.CartList.Count() == 0)
             {
-                OrderLine orderLine = new()
-                {
-                    OrderId = order.Id,
-                    ItemId = cart.ItemId,
-                    StockId = cart.StockId,
-                    Price = cart.Item.Price,
-                    Quantity = cart.Quantity,
-                    Total = cart.Item.Price * cart.Quantity,
-                    CreatedBy = currentUser
-                };
+                TempData["error"] = "Add items to cart before placing an order.";
+                return RedirectToAction("Index");
+            }
 
-                order.OrderTotal += orderLine.Total;
-
-                await _unitOfWork.OrderLine.Add(orderLine);
+            else
+            {
+                Order order = new Order();
+                order.ApplicationUserId = currentUser;
+                order.CreatedBy = currentUser;
+                await _unitOfWork.Order.Add(order);
                 await _unitOfWork.Save();
-            }
 
-            #region STRIPE
-            var domain = "https://localhost:44385/";
-            var options = new SessionCreateOptions
-            {
-                PaymentMethodTypes = new List<string>
-            {
-              "card",
-            },
-                LineItems = new List<SessionLineItemOptions>(),
-                Mode = "payment",
-                SuccessUrl = domain + $"customer/cart/OrderConfirmation?id={order.Id}",
-                CancelUrl = domain + $"customer/cart/index",
-            };
+                var orderId = order.Id;
 
-            foreach (var cart in CartVM.CartList)
-            {
-                var sessionLineItem = new SessionLineItemOptions
+                foreach (var cart in CartVM.CartList)
                 {
-                    PriceData = new SessionLineItemPriceDataOptions
+                    OrderLine orderLine = new()
                     {
-                        UnitAmount = (long)(cart.Item.Price * 100),//20.00 -> 2000
-                        Currency = "usd",
-                        ProductData = new SessionLineItemPriceDataProductDataOptions
-                        {
-                            Name = cart.Item.Name
-                        },
+                        OrderId = order.Id,
+                        ItemId = cart.ItemId,
+                        StockId = cart.StockId,
+                        Price = cart.Item.Price,
+                        Quantity = cart.Quantity,
+                        Total = cart.Item.Price * cart.Quantity,
+                        CreatedBy = currentUser
+                    };
 
-                    },
-                    Quantity = cart.Quantity,
+                    order.OrderTotal += orderLine.Total;
+
+                    await _unitOfWork.OrderLine.Add(orderLine);
+                    await _unitOfWork.Save();
+                }
+
+                #region STRIPE
+                var domain = "https://localhost:44385/";
+                var options = new SessionCreateOptions
+                {
+                    PaymentMethodTypes = new List<string>{
+                  "card",
+                },
+                    LineItems = new List<SessionLineItemOptions>(),
+                    Mode = "payment",
+                    SuccessUrl = domain + $"customer/cart/OrderConfirmation?id={order.Id}",
+                    CancelUrl = domain + $"customer/cart/index",
                 };
-                options.LineItems.Add(sessionLineItem);
+
+                foreach (var cart in CartVM.CartList)
+                {
+                    var sessionLineItem = new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            UnitAmount = (long)(cart.Item.Price * 100),//20.00 -> 2000
+                            Currency = "usd",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = cart.Item.Name
+                            },
+
+                        },
+                        Quantity = cart.Quantity,
+                    };
+                    options.LineItems.Add(sessionLineItem);
+                }
+
+                var service = new SessionService();
+                Session session = service.Create(options);
+
+                _unitOfWork.Order.UpdatePaymentStatus(order.Id, session.Id, session.PaymentIntentId, order.OrderTotal);
+                await _unitOfWork.Save();
+                Response.Headers.Add("Location", session.Url);
+                return new StatusCodeResult(303);
+                #endregion
 
             }
-
-            var service = new SessionService();
-            Session session = service.Create(options);
-
-            _unitOfWork.Order.UpdatePaymentStatus(order.Id, session.Id, session.PaymentIntentId, order.OrderTotal);
-            await _unitOfWork.Save();
-            Response.Headers.Add("Location", session.Url);
-            return new StatusCodeResult(303);
-            #endregion
         }
 
         public async Task<IActionResult> OrderConfirmation(int id)
@@ -197,20 +205,28 @@ namespace BasicPOS.Web.Areas.Customer.Controllers
 
             string sessionPayStatus = session.PaymentStatus.ToUpper();
 
-            if (sessionPayStatus == "PAID")
+            if (sessionPayStatus == SD.OrderStatus_Paid)
             {
                 _unitOfWork.Order.UpdateStatus(id, sessionPayStatus);
                 await _unitOfWork.Save();
             }
 
-            List<Cart> cartItems = (await _unitOfWork.Cart.GetAll(u => u.ApplicationUserId == order.ApplicationUserId && u.IsActive && u.Status == SD.CartStatus_InProgress)).ToList();
+            IEnumerable<Cart> cartItems = await _unitOfWork.Cart.GetAll(u => u.ApplicationUserId == order.ApplicationUserId && u.IsActive && u.Status == SD.CartStatus_InProgress);
             _unitOfWork.Cart.UpdateCartItemStatus(cartItems, SD.CartStatus_Done);
             _unitOfWork.Cart.RemoveRange(cartItems);
             await _unitOfWork.Save();
 
-            OrderVM orderVM = new OrderVM();
+            IEnumerable<OrderLine> orderLine = await _unitOfWork.OrderLine.GetAll(u => u.Id == order.Id && u.IsActive);
 
-            return View("Details", orderVM);
+            //OrderVM orderVM = new OrderVM
+            //{
+            //    Order = order,
+            //    OrderLine = orderLine
+            //};
+
+            TempData["success"] = "Order successfully placed!";
+
+            return RedirectToAction("Details", "Order", new { id = id });
         }
     }
 }

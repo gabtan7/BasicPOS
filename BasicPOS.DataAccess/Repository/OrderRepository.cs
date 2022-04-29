@@ -40,6 +40,11 @@ namespace BasicPOS.DataAccess.Repository.IRepository
 
             if (orderFromDb != null)
             {
+                if (status == SD.OrderStatus_Paid)
+                    orderFromDb.PaymentDate = DateTime.Now;
+                else if(status == SD.OrderStatus_Done)
+                    orderFromDb.DateApproved = DateTime.Now;
+
                 orderFromDb.UpdatedDate = DateTime.Now;
                 orderFromDb.OrderStatus = status;
             }

@@ -1,2 +1,87 @@
 ﻿
 @model OrderVM
+
+<form method="post" asp-action="Approve" enctype="multipart/form-data">
+<input asp-for="@Model.Order.Id" hidden/>
+    <div class="container p-3">
+        <div class="row">
+            <div class="col-4">
+                <h2 class="text-primary">Order Details</h2>
+            </div>   
+        </div>  
+
+        <br />
+        
+        <div class="row">
+            <div class="col-4">
+                <h4 class="text-primary">Order No: @Model.Order.Id</h4>
+            </div>   
+        </div>
+
+        <br />
+
+        <div class="row">
+            <div class="col-4">
+                <label class="text-primary">Order Total: @Model.Order.OrderTotal</label>
+            </div>
+            <div class="col-4">
+                <label class="text-primary">Order Date: @Model.Order.CreatedDate</label>
+            </div>
+        </div>  
+        
+        <div class="row">
+            <div class="col-4">
+                <label class="text-primary">Order Status: @Model.Order.OrderStatus</label>
+             </div>
+            <div class="col-4">
+                 <label class="text-primary">Order Payment Date: @(Model.Order.PaymentDate.Year == 0001 ? "PAYMENT PENDING" : Model.Order.PaymentDate.ToString())</label>
+            </div>
+        </div>
+
+    <br />
+
+    <div>
+        <table class="table table-bordered table-striped" stype="width:100%">
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var obj in Model.OrderLine)
+                {
+                    <tr>
+                        <td>@obj.Item.Name</td>
+                        <td>@obj.Price</td>
+                        <td>@obj.Quantity</td>
+                        <td>@obj.Total</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <br />
+
+     <div class="row">
+        <div class="col-4">
+          <label asp-for="@Model.Order.DateApproved">Date Approved</label>
+          <input asp-for="@Model.Order.DateApproved" class="form-control" type="text" value=@Model.Order.DateApproved.ToString("yyyy-MM-dd") disabled/>
+        </div>
+     </div>  
+
+     <br />
+
+    @if(User.IsInRole(SD.Role_Admin) && @Model.Order.OrderStatus == SD.OrderStatus_Paid)
+    {
+        <div class="row">
+            <div class="col-4">
+                <button type="submit" value="Approve" class="btn btn-primary"> Approve Order </button>
+            </div>
+        </div>
+    }
+    </div>
+</form>
