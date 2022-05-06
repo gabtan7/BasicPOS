@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Stripe.Checkout;
+using Stripe;
 
 namespace BasicPOS.Web.Areas.Customer.Controllers
 {
@@ -25,7 +26,7 @@ namespace BasicPOS.Web.Areas.Customer.Controllers
 
         public async Task<IActionResult> Index()
         {
-            IEnumerable<Order> orderList;
+            IEnumerable<Models.Order> orderList;
 
             if (User.IsInRole(SD.Role_Admin))
                 orderList = await _unitOfWork.Order.GetAll(u => u.IsActive == true);
@@ -63,6 +64,34 @@ namespace BasicPOS.Web.Areas.Customer.Controllers
                 TempData["error"] = "Order already approved!";
 
             return RedirectToAction("Details", new {id = OrderVM.Order.Id});
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancel()
+        {
+            OrderVM.Order = await _unitOfWork.Order.GetFirstOrDefault(u => u.Id == OrderVM.Order.Id && u.IsActive);
+            OrderVM.OrderLine = await _unitOfWork.OrderLine.GetAll(u => u.OrderId == OrderVM.Order.Id && u.IsActive, includeProperties: "Item");
+
+            if (OrderVM.Order.OrderStatus == SD.OrderStatus_Paid || OrderVM.Order.OrderStatus == SD.OrderStatus_Done)
+            {
+                var options = new RefundCreateOptions
+                {
+                    Reason = RefundReasons.RequestedByCustomer,
+                    PaymentIntent = OrderVM.Order.PaymentIntentId
+                };
+
+                var service = new RefundService();
+                Refund refund = service.Create(options);
+
+                _unitOfWork.Order.UpdateStatus(OrderVM.Order.Id, SD.OrderStatus_Cancelled);
+                await _unitOfWork.Save();
+            }
+
+            else
+                TempData["error"] = "Order already cancelled!";
+
+            return RedirectToAction("Details", new { id = OrderVM.Order.Id });
         }
     }
 }
