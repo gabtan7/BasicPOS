@@ -45,7 +45,10 @@ namespace BasicPOS.DataAccess.Repository.IRepository
                 }
             }
 
-            return await query.ToListAsync();
+            List<T> list = await query.ToListAsync();
+            list.Reverse();
+
+            return list;
         }
 
         public async Task<T> GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = true)
