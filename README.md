@@ -1,6 +1,6 @@
 # BasicPOS
 
-C# ASP .NET CORE 6 /
+C# ASP .NET CORE 6 API/
 EF Core /
 N-Tier architecture /
 Repository Pattern /
